@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>text to gif</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+  </head>
+  <body>
+    <div class="container" style="text-align: center">
+      <input type="text" id="textInput" maxlength="10" placeholder="Enter text" style="height: 20px;" />
+      <button id="generateBtn" type="button">Generate</button>
+      <div id="preview" style="margin-top: 20px; height: 125px"></div>
+    </div>
+    <script>
+      document.getElementById("generateBtn").addEventListener("click", () => {
+        const text = document.getElementById("textInput").value;
+        if (text.length === 0) {
+          return;
+        }
+
+        const gif = new GIF({
+          workerScript: "/gif.worker.js",
+        });
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 120;
+        canvas.height = 120;
+
+        for (let i = 0; i < text.length; i++) {
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "black";
+          ctx.font = "bold 72px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text[i], 60, 65);
+          gif.addFrame(canvas, { copy: true, delay: 800 });
+        }
+
+        gif.on("finished", (blob) => {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(blob);
+          document.getElementById("preview").innerHTML = "";
+          document.getElementById("preview").appendChild(img);
+        });
+        gif.render();
+      });
+    </script>
+  </body>
+</html>
